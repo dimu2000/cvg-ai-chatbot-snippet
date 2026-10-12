@@ -1,0 +1,74 @@
+<!--
+  CVG AI Chatbot — the markup.
+
+  WPCode: add this as an "HTML Snippet", location "Site Wide Footer".
+  Not using WPCode? Paste it into your theme's footer.php just before </body>.
+
+  You do not need to edit anything in here. The title, the online/offline badge,
+  the opening message, the quick-reply buttons and the input length limit are all
+  filled in by 04-script.js from the /config endpoint — so when you change the
+  CONFIG block in 01-paste-into-wpcode.php, this file keeps up on its own.
+
+  Every icon is an inline SVG on purpose. The tutorial code this replaces loaded
+  FontAwesome from a CDN and a Lottie player from unpkg. Measured in the lab: when
+  the active theme already enqueues FontAwesome, the page ends up with two full
+  icon fonts (5.15.4 and 6.2.0), WordPress cannot dedupe them — wp_enqueue_style()
+  only knows about handles it registered, and a raw <link> in a snippet is
+  invisible to it — and mismatched majors render as empty squares. Nothing here
+  downloads, so nothing here can collide or be offline.
+
+  The launcher mark is an animated SVG, animated with CSS only. It stops moving
+  under prefers-reduced-motion (see 03-styles.css).
+
+  Created by Dimu Harshana - https://ceeveeglobal.com/
+  Full guide: https://ceeveeglobal.com/add-ai-chatbot-to-wordpress/
+  License: GPL-2.0-or-later
+-->
+<div class="cvg-chatbot" id="cvg-chatbot" data-open="false">
+
+	<button type="button" class="cvg-chatbot__launcher" aria-expanded="false" aria-controls="cvg-chatbot-panel">
+		<span class="cvg-chatbot__launcher-open">
+			<svg class="cvg-mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+				<path class="cvg-mark__bubble" d="M24 7c9.4 0 17 6.3 17 14.1 0 7.8-7.6 14.1-17 14.1-1.8 0-3.6-.2-5.2-.7l-7.5 4.1a1 1 0 0 1-1.5-1l1.2-6.2C7.2 29 7 25.6 7 21.1 7 13.3 14.6 7 24 7Z"/>
+				<circle class="cvg-mark__dot" cx="16.5" cy="21" r="2.4"/>
+				<circle class="cvg-mark__dot" cx="24"   cy="21" r="2.4"/>
+				<circle class="cvg-mark__dot" cx="31.5" cy="21" r="2.4"/>
+			</svg>
+		</span>
+		<span class="cvg-chatbot__launcher-close">
+			<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6 6 18M6 6l12 12"/></svg>
+		</span>
+		<span class="cvg-sr">Open chat</span>
+	</button>
+
+	<div class="cvg-chatbot__panel" id="cvg-chatbot-panel" role="dialog" aria-modal="false" aria-label="Ask a question" hidden>
+
+		<div class="cvg-chatbot__header">
+			<div>
+				<p class="cvg-chatbot__title">Ask a question</p>
+				<p class="cvg-chatbot__status" data-online="true">
+					<span class="cvg-chatbot__dot" aria-hidden="true"></span>
+					<span class="cvg-chatbot__status-text">Online</span>
+				</p>
+			</div>
+			<button type="button" class="cvg-chatbot__close">
+				<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6 6 18M6 6l12 12"/></svg>
+				<span class="cvg-sr">Close chat</span>
+			</button>
+		</div>
+
+		<div class="cvg-chatbot__log" role="log" aria-live="polite" aria-atomic="false"></div>
+		<div class="cvg-chatbot__quick"></div>
+
+		<form class="cvg-chatbot__form">
+			<label class="cvg-sr" for="cvg-chatbot-input">Your message</label>
+			<textarea id="cvg-chatbot-input" class="cvg-chatbot__input" rows="1"
+				placeholder="Type your message&hellip;" maxlength="1000" required></textarea>
+			<button type="submit" class="cvg-chatbot__send">
+				<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 12 4 4l6 8-6 8Z"/></svg>
+				<span class="cvg-sr">Send</span>
+			</button>
+		</form>
+
+	</div>
+</div>

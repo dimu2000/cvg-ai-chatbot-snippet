@@ -1,0 +1,369 @@
+/*
+ * CVG AI Chatbot — widget styles (snippet edition).
+ *
+ * WPCode: add this as a "CSS Snippet", location "Site Wide Header".
+ * Not using WPCode? Paste it into Appearance > Customise > Additional CSS.
+ *
+ * Byte-for-byte the same stylesheet the plugin ships, so the two builds cannot
+ * drift apart.
+ *
+ * EVERY colour is a custom property in the one block below. To rebrand the whole
+ * widget, change these values and nothing else. (--cvg-accent and
+ * --cvg-accent-text are also written by 01-paste-into-wpcode.php from its CONFIG
+ * block, as an inline style, so those two override what is here.)
+ *
+ * Deliberately no icon font and no external stylesheet: the original kit pulled
+ * FontAwesome from a CDN, which collides with a theme that already loads it. All
+ * icons here are inline SVG.
+ *
+ * Created by Dimu Harshana - https://ceeveeglobal.com/
+ * Full guide: https://ceeveeglobal.com/add-ai-chatbot-to-wordpress/
+ * License: GPL-2.0-or-later
+ */
+
+.cvg-chatbot {
+	/* ---- brand ---- */
+	--cvg-accent: #4F46E5;        /* indigo  — header, launcher, user bubble */
+	--cvg-accent-text: #FDFFF4;   /* text on accent */
+	--cvg-signal: #0B9568;        /* mint    — online dot */
+	--cvg-danger: #B91C1C;        /* coral   — error text */
+
+	/* ---- surfaces ---- */
+	--cvg-paper: #FDFFF4;
+	--cvg-cream: #F4F6EA;
+	--cvg-ink: #10141A;
+	--cvg-muted: #5A6472;
+	--cvg-line: #E2E6D4;
+
+	/* ---- shape ---- */
+	--cvg-radius: 14px;
+	--cvg-radius-sm: 10px;
+	--cvg-shadow: 0 10px 30px rgba(16, 20, 26, .18);
+	--cvg-font: inherit;
+
+	/* column-reverse, so the PANEL opens upward from a launcher that never moves.
+	 *
+	 * The launcher comes first in the markup, which is what keyboard and screen
+	 * reader users should reach first. Without a flex direction here that DOM
+	 * order was also the paint order: the button sat on top, the panel hung
+	 * below it, and opening the chat shoved the button up the page. Caught in
+	 * the S5 captures — `margin-left: auto` on the launcher and `margin-bottom`
+	 * on the panel were both already written for this layout and were doing
+	 * nothing without it.
+	 */
+	display: flex;
+	flex-direction: column-reverse;
+	align-items: flex-end;
+
+	position: fixed;
+	right: 20px;
+	bottom: 20px;
+	z-index: 99999;
+	font-family: var(--cvg-font);
+	font-size: 16px;   /* 16px floor: anything smaller zooms the page on iOS */
+	line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+	.cvg-chatbot:not([data-theme="light"]) {
+		--cvg-paper: #161b22;
+		--cvg-cream: #0d1117;
+		--cvg-ink: #c9d1d9;
+		--cvg-muted: #8b949e;
+		--cvg-line: #30363d;
+		--cvg-danger: #EF4444;
+		--cvg-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+	}
+}
+.cvg-chatbot[data-theme="dark"] {
+	--cvg-paper: #161b22;
+	--cvg-cream: #0d1117;
+	--cvg-ink: #c9d1d9;
+	--cvg-muted: #8b949e;
+	--cvg-line: #30363d;
+	--cvg-danger: #EF4444;
+	--cvg-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+}
+
+/* Screen-reader-only text. Named with the cvg- prefix so it cannot collide with
+   a theme's own .screen-reader-text rules. */
+.cvg-chatbot .cvg-sr {
+	position: absolute !important;
+	width: 1px; height: 1px;
+	padding: 0; margin: -1px;
+	overflow: hidden; clip: rect(0 0 0 0);
+	white-space: nowrap; border: 0;
+}
+
+/* ------------------------------------------------------------------ launcher */
+
+.cvg-chatbot__launcher {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 60px;
+	height: 60px;
+	margin-left: auto;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: var(--cvg-accent);
+	color: var(--cvg-accent-text);
+	box-shadow: var(--cvg-shadow);
+	cursor: pointer;
+	transition: transform .18s ease, box-shadow .18s ease;
+}
+.cvg-chatbot__launcher:hover { transform: translateY(-2px); }
+.cvg-chatbot__launcher:focus-visible {
+	outline: 3px solid var(--cvg-accent);
+	outline-offset: 3px;
+}
+.cvg-chatbot__launcher svg { width: 30px; height: 30px; }
+.cvg-chatbot__launcher-close { display: none; }
+.cvg-chatbot[data-open="true"] .cvg-chatbot__launcher-open { display: none; }
+.cvg-chatbot[data-open="true"] .cvg-chatbot__launcher-close { display: block; }
+
+.cvg-chatbot__launcher-close svg {
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2.2;
+	stroke-linecap: round;
+}
+
+/* ---- the animated mark: replaces the kit's Lottie player entirely ---- */
+
+.cvg-mark { width: 32px; height: 32px; }
+.cvg-mark__bubble { fill: currentColor; opacity: .95; }
+.cvg-mark__dot {
+	fill: var(--cvg-accent);
+	animation: cvg-pulse 1.4s ease-in-out infinite;
+}
+.cvg-mark__dot:nth-of-type(2) { animation-delay: .18s; }
+.cvg-mark__dot:nth-of-type(3) { animation-delay: .36s; }
+
+@keyframes cvg-pulse {
+	0%, 60%, 100% { transform: translateY(0); opacity: .55; }
+	30%           { transform: translateY(-2.5px); opacity: 1; }
+}
+
+/* Motion is decoration here, so it goes away entirely when asked. */
+@media (prefers-reduced-motion: reduce) {
+	.cvg-mark__dot { animation: none; opacity: .9; }
+	.cvg-chatbot__launcher,
+	.cvg-chatbot__panel { transition: none; }
+	.cvg-typing__dot { animation: none !important; }
+}
+
+/* --------------------------------------------------------------------- panel */
+
+.cvg-chatbot__panel {
+	display: flex;
+	flex-direction: column;
+	width: 370px;
+	max-width: calc(100vw - 32px);
+	height: 520px;
+	max-height: calc(100vh - 120px);
+	margin-bottom: 12px;
+	overflow: hidden;
+	border: 1px solid var(--cvg-line);
+	border-radius: var(--cvg-radius);
+	background: var(--cvg-paper);
+	color: var(--cvg-ink);
+	box-shadow: var(--cvg-shadow);
+}
+.cvg-chatbot__panel[hidden] { display: none; }
+
+.cvg-chatbot__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 14px 16px;
+	background: var(--cvg-accent);
+	color: var(--cvg-accent-text);
+}
+.cvg-chatbot__title {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+}
+.cvg-chatbot__status {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 2px 0 0;
+	font-size: .8125rem;
+	opacity: .9;
+}
+.cvg-chatbot__dot {
+	width: 8px; height: 8px;
+	border-radius: 50%;
+	background: var(--cvg-muted);
+}
+.cvg-chatbot__status[data-online="true"] .cvg-chatbot__dot { background: var(--cvg-signal); }
+
+.cvg-chatbot__close {
+	display: flex;
+	padding: 6px;
+	border: 0;
+	border-radius: var(--cvg-radius-sm);
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+}
+.cvg-chatbot__close:hover { background: rgba(255, 255, 255, .18); }
+.cvg-chatbot__close svg {
+	width: 20px; height: 20px;
+	fill: none; stroke: currentColor;
+	stroke-width: 2.2; stroke-linecap: round;
+}
+.cvg-chatbot__close:focus-visible,
+.cvg-chatbot__send:focus-visible,
+.cvg-quick__btn:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+/* ----------------------------------------------------------------- messages */
+
+.cvg-chatbot__log {
+	flex: 1 1 auto;
+	padding: 16px;
+	overflow-y: auto;
+	background: var(--cvg-cream);
+}
+
+.cvg-msg { display: flex; margin-bottom: 10px; }
+.cvg-msg--user { justify-content: flex-end; }
+
+.cvg-msg__bubble {
+	max-width: 85%;
+	padding: 10px 13px;
+	border-radius: var(--cvg-radius-sm);
+	background: var(--cvg-paper);
+	border: 1px solid var(--cvg-line);
+	overflow-wrap: anywhere;
+}
+.cvg-msg--user .cvg-msg__bubble {
+	background: var(--cvg-accent);
+	border-color: var(--cvg-accent);
+	color: var(--cvg-accent-text);
+}
+.cvg-msg--error .cvg-msg__bubble {
+	color: var(--cvg-danger);
+	border-color: currentColor;
+}
+.cvg-msg__bubble p { margin: 0 0 .5em; }
+.cvg-msg__bubble p:last-child { margin-bottom: 0; }
+.cvg-msg__bubble code {
+	padding: .1em .35em;
+	border-radius: 4px;
+	background: var(--cvg-cream);
+	font-size: .9em;
+}
+.cvg-msg--user .cvg-msg__bubble code { background: rgba(0, 0, 0, .22); }
+.cvg-msg__bubble pre {
+	margin: .5em 0;
+	padding: 10px;
+	overflow-x: auto;
+	border-radius: var(--cvg-radius-sm);
+	background: #0d1117;
+	color: #c9d1d9;
+}
+.cvg-msg__bubble pre code { background: none; padding: 0; }
+.cvg-msg__bubble a { color: inherit; text-decoration: underline; }
+
+/* typing indicator */
+.cvg-typing__dot {
+	display: inline-block;
+	width: 7px; height: 7px;
+	margin-right: 4px;
+	border-radius: 50%;
+	background: var(--cvg-muted);
+	animation: cvg-blink 1.2s ease-in-out infinite;
+}
+.cvg-typing__dot:nth-child(2) { animation-delay: .15s; }
+.cvg-typing__dot:nth-child(3) { animation-delay: .3s; margin-right: 0; }
+@keyframes cvg-blink {
+	0%, 70%, 100% { opacity: .3; }
+	35%           { opacity: 1; }
+}
+
+/* ----------------------------------------------------- quick replies + form */
+
+.cvg-chatbot__quick {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	padding: 0 16px;
+	background: var(--cvg-cream);
+}
+.cvg-chatbot__quick:empty { display: none; }
+.cvg-quick__btn {
+	padding: 7px 11px;
+	border: 1px solid var(--cvg-accent);
+	border-radius: 999px;
+	background: transparent;
+	color: var(--cvg-accent);
+	font-size: .875rem;
+	cursor: pointer;
+}
+.cvg-quick__btn:hover {
+	background: var(--cvg-accent);
+	color: var(--cvg-accent-text);
+}
+
+.cvg-chatbot__form {
+	display: flex;
+	align-items: flex-end;
+	gap: 8px;
+	padding: 12px;
+	border-top: 1px solid var(--cvg-line);
+	background: var(--cvg-paper);
+}
+.cvg-chatbot__input {
+	flex: 1 1 auto;
+	min-height: 42px;
+	max-height: 120px;
+	padding: 10px 12px;
+	border: 1px solid var(--cvg-line);
+	border-radius: var(--cvg-radius-sm);
+	background: var(--cvg-paper);
+	color: var(--cvg-ink);
+	font: inherit;
+	font-size: 1rem;   /* keep at 16px — iOS zooms a smaller input */
+	resize: none;
+}
+.cvg-chatbot__input:focus-visible {
+	outline: 2px solid var(--cvg-accent);
+	outline-offset: 1px;
+}
+.cvg-chatbot__input:disabled { opacity: .6; }
+
+.cvg-chatbot__send {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 42px; height: 42px;
+	flex: 0 0 auto;
+	border: 0;
+	border-radius: var(--cvg-radius-sm);
+	background: var(--cvg-accent);
+	color: var(--cvg-accent-text);
+	cursor: pointer;
+}
+.cvg-chatbot__send:disabled { opacity: .5; cursor: default; }
+.cvg-chatbot__send svg {
+	width: 20px; height: 20px;
+	fill: currentColor;
+}
+
+/* ---------------------------------------------------------------- phone */
+
+@media (max-width: 480px) {
+	.cvg-chatbot { right: 12px; bottom: 12px; left: 12px; }
+	.cvg-chatbot__panel {
+		width: auto;
+		height: min(72vh, 540px);
+	}
+}
