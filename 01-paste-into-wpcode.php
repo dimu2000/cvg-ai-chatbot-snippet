@@ -2,20 +2,24 @@
  * CVG AI Chatbot — the PHP half, as a WPCode snippet.
  *
  * ---------------------------------------------------------------------------
- * READ THESE TWO LINES BEFORE YOU PASTE. Both failures are SILENT: nothing in
- * debug.log, no error on screen, the chat box simply never answers.
+ * READ THIS BEFORE YOU PASTE. The failure is SILENT: nothing in debug.log, no
+ * error on screen, the chat box simply never answers.
  *
- *  1. DO NOT add <?php at the top. This file deliberately starts with a
- *     comment. WPCode *evaluates* the code you store rather than including a
- *     file, so a leading <?php is a parse error. On WPCode 2.4.0 the snippet
- *     then refuses to activate at all and silently stays a draft.
- *
- *  2. SET THE LOCATION TO "Run Everywhere". Anything that runs only on the
+ *     SET THE LOCATION TO "Run Everywhere". Anything that runs only on the
  *     front end (e.g. "Frontend Only" / frontend_cl) fires on WordPress's `wp`
  *     hook, which only runs on a real page view. REST requests are not page
  *     views, so the routes below never register and every chat request 404s
  *     with 0 bytes written to the log. Measured: `frontend_cl` and
  *     `admin_only` → route absent; `everywhere` and `frontend_only` → 200.
+ *
+ * CORRECTION, 2026-10-12. An earlier version of this header also warned that a
+ * leading <?php tag would stop the snippet activating. That was measured FALSE
+ * and is withdrawn. WPCode strips the tag when you save: 3,903 bytes submitted,
+ * 3,898 stored, and the snippet activates normally. This file still opens with
+ * a comment rather than a tag, and either way works. The original failure came
+ * from writing the snippet row straight into the database with WP-CLI, which
+ * skips the save routine that does the stripping. See
+ * https://ceeveeglobal.com/add-ai-chatbot-to-wordpress/
  * ---------------------------------------------------------------------------
  *
  * This is the plugin flattened into one paste-in file, kept behaviour-identical

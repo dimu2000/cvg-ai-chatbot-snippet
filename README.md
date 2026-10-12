@@ -47,15 +47,27 @@ define( 'CVG_CHATBOT_API_KEY', 'sk-your-real-key' );
 
 Reload any page on the front end. The launcher appears in the bottom corner.
 
-### Two things that fail silently
+### The one thing that fails silently
 
-Both of these leave nothing in `debug.log` and show no error on screen. The chat box simply
-never answers.
+It leaves nothing in `debug.log` and shows no error on screen. The chat box simply never
+answers.
 
-1. **Do not add `<?php` at the top of file 1.** It deliberately starts with a comment.
-2. **File 1's location must be *Run Everywhere*.** Anything front-end-only runs on
-   WordPress's `wp` hook, which a REST request never reaches, so the routes never register
-   and every chat request 404s.
+**File 1's location must be *Run Everywhere*.** Anything front-end-only runs on WordPress's
+`wp` hook, which a REST request never reaches, so the routes never register and every chat
+request 404s.
+
+#### Correction, 2026-10-12
+
+This README used to list a second silent failure: that adding `<?php` at the top of file 1
+would stop it working. **That was measured and it is false**, so it is withdrawn.
+
+WPCode strips a leading `<?php` when it saves the snippet. Measured on WPCode 2.4.0: 3,903
+bytes submitted, 3,898 stored, and the snippet activates normally. File 1 still opens with a
+comment rather than a tag, and either way works.
+
+The original failure was real but the cause was not WPCode. It came from writing the snippet
+row straight into the database with WP-CLI, which skips the save routine that does the
+stripping. Full write-up: https://ceeveeglobal.com/add-ai-chatbot-to-wordpress/
 
 ## Running it free
 
